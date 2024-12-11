@@ -11,12 +11,16 @@ type Props = {
 export function Places({ data }: Props) {
   const dimensions = useWindowDimensions();
   const bottomSheetRef = useRef<BottomSheet>(null);
+  const snapPoints = {
+    min: 278,
+    max: dimensions.height - 128,
+  }
 
   return (
     <BottomSheet
       ref={bottomSheetRef}
       index={0} 
-      snapPoints={[dimensions.height * 0.5, dimensions.height * 0.75, "100%"]} 
+      snapPoints={[snapPoints.min, snapPoints.max]} 
     >
       <BottomSheetFlatList
         data={data}
