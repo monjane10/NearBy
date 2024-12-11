@@ -21,11 +21,16 @@ export function Places({ data }: Props) {
       ref={bottomSheetRef}
       index={0} 
       snapPoints={[snapPoints.min, snapPoints.max]} 
+      handleIndicatorStyle={s.indicator}
+      backgroundStyle={s.container}
+      enableOverDrag={false}
     >
       <BottomSheetFlatList
         data={data}
         keyExtractor={(item) => item.id.toString()} 
         renderItem={({ item }) => <Place data={item} />}
+        ListHeaderComponent={() => <Text style={s.title}>Explore lugares perto de ti</Text>}
+        showsVerticalScrollIndicator={false}
       />
     </BottomSheet>
   );
