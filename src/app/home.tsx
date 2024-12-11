@@ -1,9 +1,10 @@
 import { useEffect,useState } from "react";
 import { View, Text } from "react-native";
 import{api} from "@/services/api"
+import{Categories, CategoriesProps} from "@/components/categories";
 
 export default function Home(){
-    const [categories, setCategories] = useState([]);
+    const [categories, setCategories] = useState<CategoriesProps>([]);
 
 
     async function fecthCategories() {
@@ -23,7 +24,7 @@ export default function Home(){
     return (
         <View style={{flex:1}}>
             
-
+            <Categories data={categories} />
         </View>
     )
 }
