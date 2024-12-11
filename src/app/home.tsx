@@ -4,12 +4,12 @@ import{api} from "@/services/api"
 
 export default function Home(){
     const [categories, setCategories] = useState([]);
-    
+
 
     async function fecthCategories() {
         try {
             const {data} = await api.get("/categories")
-             console.log(data)
+            setCategories(data);
             
         } catch (error) {
             console.log(error)
