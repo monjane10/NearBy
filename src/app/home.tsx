@@ -48,7 +48,7 @@ export default function Home(){
         fecthMarkets()
     },[category])
     return (
-        <View style={{flex:1}}>
+        <View style={{flex:1, backgroundColor:"#CECECE"}}>
             
             <Categories data={categories} onSelect={setCategory} selected={category} />
 
