@@ -13,8 +13,8 @@ export const s = StyleSheet.create({
         justifyContent: 'center',
         flexDirection: 'row',
         paddingHorizontal: 12,
-        gap: 10
-        
+        gap: 10, 
+        marginTop: 10,        
     },
     name: {
         fontSize: 14,
