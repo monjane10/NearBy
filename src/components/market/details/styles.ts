@@ -22,6 +22,9 @@ export const s = StyleSheet.create({
         fontSize:16,
         fontFamily: fontFamily.regular,
         color: colors.gray[500],
+        marginTop: 12,
+        marginBottom: 32,
+        lineHeight: 22,
         
     },
     group: {
@@ -37,6 +40,7 @@ export const s = StyleSheet.create({
         fontFamily: fontFamily.medium,
         color: colors.gray[500],
         marginBottom: 12,
+       
         
     },
     rule: {
