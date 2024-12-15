@@ -1,4 +1,4 @@
-import { View, Alert } from "react-native";
+import { View, Alert, Modal } from "react-native";
 import { router, useLocalSearchParams, Redirect } from "expo-router";
 import { api } from "@/services/api";
 import { useEffect, useState } from "react";
@@ -6,13 +6,16 @@ import { Loading } from "@/components/loading";
 import { Cover } from "@/components/market/cover";
 import { Details, PropsDetails } from "@/components/market/details";
 import { Coupon } from "@/components/market/coupon";
+import Button from "@/components/button";
 
 type DataProps = PropsDetails & {
   cover: string;
 };
 
 export default function Market() {
-  const [data, setData] = useState<DataProps | null>(null); // Inicializando como null
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [coupon, setCoupon] = useState<string | null>(null);
+  const [data, setData] = useState<DataProps>(); // Inicializando como null
   const [isLoading, setIsLoading] = useState(true);
 
   const params = useLocalSearchParams<{ id: string }>();
@@ -42,6 +45,17 @@ export default function Market() {
     }
   }
 
+  const handleOpenCamera = () => {
+    try {
+      // Exibe o modal ao definir a visibilidade para true
+      setIsModalVisible(true);
+    } catch (error) {
+      console.log(error);
+      Alert.alert("Erro", "Não foi possível abrir a câmera.");
+    }
+  };
+  
+
   // Carrega os dados assim que o componente for montado ou quando o ID mudar
   useEffect(() => {
     if (params.id) {
@@ -63,7 +77,22 @@ export default function Market() {
     <View style={{ flex: 1 }}>
       <Cover uri={data.cover} />
       <Details data={data} />
-      <Coupon code="FM43ST6" />
+      {coupon && <Coupon code={coupon} />}
+
+      <View style={{ padding: 32 }}>
+        <Button onPress={handleOpenCamera}>
+          <Button.Title>Ler QR Code</Button.Title>
+        </Button>
+      </View>
+
+      <Modal style={{flex:1}} visible={isModalVisible}>
+        <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
+        <Button onPress={() => setIsModalVisible(false)}>
+          <Button.Title>Fechar</Button.Title>
+        </Button>
+        </View>
+      </Modal>
+
     </View>
   );
 }
