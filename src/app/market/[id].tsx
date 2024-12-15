@@ -1,4 +1,4 @@
-import { View, Alert, Modal } from "react-native";
+import { View, Alert, Modal, StatusBar, ScrollView } from "react-native";
 import { router, useLocalSearchParams, Redirect } from "expo-router";
 import { api } from "@/services/api";
 import { useEffect, useState, useRef } from "react";
@@ -122,9 +122,12 @@ export default function Market() {
 
   return (
     <View style={{ flex: 1 }}>
+      <StatusBar barStyle="light-content" hidden={isModalVisible} />
+      <ScrollView showsVerticalScrollIndicator={false}>
       <Cover uri={data.cover} />
       <Details data={data} />
       {coupon && <Coupon code={coupon} />}
+      </ScrollView>
 
       <View style={{ padding: 32 }}>
         <Button onPress={handleOpenCamera}>
