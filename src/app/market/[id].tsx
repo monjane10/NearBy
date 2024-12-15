@@ -1,12 +1,13 @@
 import { View, Alert, Modal } from "react-native";
 import { router, useLocalSearchParams, Redirect } from "expo-router";
 import { api } from "@/services/api";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Loading } from "@/components/loading";
 import { Cover } from "@/components/market/cover";
 import { Details, PropsDetails } from "@/components/market/details";
 import { Coupon } from "@/components/market/coupon";
 import Button from "@/components/button";
+import { useCameraPermissions, CameraView } from "expo-camera";
 
 type DataProps = PropsDetails & {
   cover: string;
@@ -15,12 +16,18 @@ type DataProps = PropsDetails & {
 export default function Market() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [coupon, setCoupon] = useState<string | null>(null);
-  const [data, setData] = useState<DataProps>(); // Inicializando como null
+  const [data, setData] = useState<DataProps>();
   const [isLoading, setIsLoading] = useState(true);
+  const [couponIsFetching, setCouponIsFetching] = useState(false);
+
+  const [_, requestPermission] = useCameraPermissions();
 
   const params = useLocalSearchParams<{ id: string }>();
 
-  // Função para fazer a requisição à API
+  const qrLock = useRef(false);
+  console.log(params.id);
+
+  // Função para buscar dados do mercado
   async function fetchMarket() {
     if (!params.id) {
       Alert.alert("ID inválido", "O ID do mercado não foi fornecido.");
@@ -45,30 +52,70 @@ export default function Market() {
     }
   }
 
-  const handleOpenCamera = () => {
+  // Função para abrir a câmera
+  async function handleOpenCamera() {
     try {
-      // Exibe o modal ao definir a visibilidade para true
+      const { granted } = await requestPermission();
+      if (!granted) {
+        return Alert.alert("Permissão negada", "Para usar a câmera, você precisa habilitar a câmera.");
+      }
+      qrLock.current = false;
       setIsModalVisible(true);
     } catch (error) {
       console.log(error);
       Alert.alert("Erro", "Não foi possível abrir a câmera.");
     }
-  };
-  
+  }
 
-  // Carrega os dados assim que o componente for montado ou quando o ID mudar
+  // Função para obter o cupom
+  async function getCoupon(id: string) {
+    try {
+      setCouponIsFetching(true);
+      const { data } = await api.patch(`/coupon/${id}`);
+
+      Alert.alert("Sucesso", "Cupom aplicado com sucesso.", data.coupon);
+      setCoupon(data.coupon);
+    } catch (error) {
+      console.log(error);
+      Alert.alert("Erro", "Não foi possível obter o cupom.");
+    } finally {
+      setCouponIsFetching(false);
+    }
+  }
+
+  // Função de uso do cupom
+  function handleUseCoupon(code: string) {
+    setIsModalVisible(false);
+
+    Alert.alert(
+      "Não é possível reutilizar um cupom resgatado. Deseja realmente resgatar o cupom?",
+      "",
+      [
+        {
+          style: "cancel",
+          text: "Não",
+        },
+        {
+          text: "Sim",
+          onPress: () => {
+            getCoupon(code); // Chama a função getCoupon passando o código do cupom
+          },
+        },
+      ]
+    );
+  }
+
+  // Carregar os dados assim que o ID mudar
   useEffect(() => {
     if (params.id) {
       fetchMarket();
     }
-  }, [params.id]);
+  }, [params.id, coupon]);
 
-  // Exibe o loading enquanto os dados estão sendo carregados
   if (isLoading) {
     return <Loading />;
   }
 
-  // Se não houver dados, redireciona para a página principal
   if (!data) {
     return <Redirect href="/home" />;
   }
@@ -85,14 +132,31 @@ export default function Market() {
         </Button>
       </View>
 
-      <Modal style={{flex:1}} visible={isModalVisible}>
-        <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
-        <Button onPress={() => setIsModalVisible(false)}>
-          <Button.Title>Fechar</Button.Title>
-        </Button>
+      {/* Modal de câmera */}
+      <Modal style={{ flex: 1 }} visible={isModalVisible}>
+        <CameraView
+          style={{ flex: 1 }}
+          facing="back"
+          onBarcodeScanned={(result) => {
+            if (result && !qrLock.current) {
+              qrLock.current = true; 
+              setTimeout(() => {
+                const scannedCode = result.data; 
+                if (scannedCode) {
+                  handleUseCoupon(scannedCode);
+                }
+                qrLock.current = false; 
+              }, 500);
+            }
+          }}
+        />
+
+        <View style={{ position: "absolute", bottom: 32, left: 32, right: 32 }}>
+          <Button onPress={() => setIsModalVisible(false)} isLoading={couponIsFetching}>
+            <Button.Title>Fechar</Button.Title>
+          </Button>
         </View>
       </Modal>
-
     </View>
   );
 }
