@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Loading } from "@/components/loading";
 import { Cover } from "@/components/market/cover";
 import { Details, PropsDetails } from "@/components/market/details";
+import { Coupon } from "@/components/market/coupon";
 
 type DataProps = PropsDetails & {
   cover: string;
@@ -62,6 +63,7 @@ export default function Market() {
     <View style={{ flex: 1 }}>
       <Cover uri={data.cover} />
       <Details data={data} />
+      <Coupon code="FM43ST6" />
     </View>
   );
 }
