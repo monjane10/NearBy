@@ -31,6 +31,16 @@ export const Details = ({ data }: Props) => {
                 <Info icon={IconMapPin} description={data.address} />
                 <Info icon={IconPhone} description={data.phone} />
             </View>
+
+            <View style={s.group}>
+                <Text style={s.title}>Regras</Text>
+                {data.rules.map((item) => (
+                    <Text key={item.id} style={s.rule}>
+                        {`\u2022 ${item.description}`}
+                    </Text>
+                ))}
+            </View>
+
         </View>
     );
 };
